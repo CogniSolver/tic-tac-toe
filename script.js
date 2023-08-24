@@ -1,9 +1,9 @@
 const cells = document.querySelectorAll("[data-cell]");
 const gameStatus = document.querySelector("#status");
 const restartButton = document.querySelector("#restart");
-// const computerCheckbox = document.querySelector("#computer");
+const computerCheckbox = document.querySelector("#computer");
 
-// let computerPlaying = false;
+let computerPlaying = false;
 let currentPlayer = "X";
 let gameBoard = ["", "", "", "", "", "", "", "", ""];
 let gameWon = false;
@@ -21,13 +21,13 @@ const winningCombinations = [
   [2, 4, 6],
 ];
 
-// computerCheckbox.addEventListener("change", () => {
-//   computerPlaying = computerCheckbox.checked;
-//   if (computerPlaying) {
-//     currentPlayer = "X";
-//     gameStatus.textContent = `Current player: ${currentPlayer}`;
-//   }
-// });
+computerCheckbox.addEventListener("change", () => {
+  computerPlaying = computerCheckbox.checked;
+  if (computerPlaying) {
+    currentPlayer = "X";
+    gameStatus.textContent = `Current player: ${currentPlayer}`;
+  }
+});
 
 function handleClick(event) {
   movesCount++;
@@ -37,26 +37,21 @@ function handleClick(event) {
     gameBoard[index] = currentPlayer;
     cell.textContent = currentPlayer;
 
-    // if (computerPlaying && movesCount < 8) {
-    //   movesCount++;
-    //   let computerIndex;
-    //   do {
-    //     computerIndex = Math.floor(Math.random() * 9);
-    //   } while (gameBoard[computerIndex] !== "");
-    //   gameBoard[computerIndex] = currentPlayer === "X" ? "O" : "X";
-    //   cells[computerIndex].textContent = currentPlayer === "X" ? "O" : "X";
-    //   checkWin();
-    // } else {
-    //   checkWin();
-    //   if (!gameTie && !gameWon) {
-    //     switchPlayer();
-    //   }
-    // }
-
-    checkWin();
+    if (computerPlaying && movesCount < 8) {
+      movesCount++;
+      let computerIndex;
+      do {
+        computerIndex = Math.floor(Math.random() * 9);
+      } while (gameBoard[computerIndex] !== "");
+      gameBoard[computerIndex] = currentPlayer === "X" ? "O" : "X";
+      cells[computerIndex].textContent = currentPlayer === "X" ? "O" : "X";
+      checkWin();
+    } else {
+      checkWin();
       if (!gameTie && !gameWon) {
         switchPlayer();
       }
+    }
   }
 }
 
