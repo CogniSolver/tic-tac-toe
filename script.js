@@ -9,6 +9,7 @@ let gameBoard = ["", "", "", "", "", "", "", "", ""];
 let gameWon = false;
 let gameTie = false;
 let movesCount = 0;
+let wonPatternIndices = [];
 
 const winningCombinations = [
   [0, 1, 2],
@@ -29,60 +30,135 @@ computerCheckBox.addEventListener("change", () => {
   }
 });
 
+function bestMove() {
+  let bestScore = -Infinity;
+  let bestMoveIndex = -1;
+
+  for (let i = 0; i < gameBoard.length; i++) {
+    if (gameBoard[i] === "") {
+      tempBoard = [...gameBoard];
+      tempBoard[i] = "O";
+      let score = minimax(tempBoard, 0, false);
+      
+      if (score > bestScore) {
+        bestScore = score;
+        bestMoveIndex = i;
+      }
+    }
+  }
+
+  return bestMoveIndex;
+}
+
+function minimax(board, depth, isMaximizing) {
+  const scores = {
+    X: -10,
+    O: 10,
+    tie: 0,
+  };
+
+  const winner = checkWin(board);
+  if (winner) {
+    return scores[winner];
+  }
+
+  if (!board.includes("")) {
+    return scores.tie;
+  }
+
+  if (isMaximizing) {
+    let bestScore = -Infinity;
+    for (let i = 0; i < board.length; i++) {
+      if (board[i] === "") {
+        board[i] = "O";
+        let score = minimax(board, depth + 1, false);
+        board[i] = "";
+        bestScore = Math.max(bestScore, score);
+      }
+    }
+    return bestScore;
+  } else {
+    let bestScore = Infinity;
+    for (let i = 0; i < board.length; i++) {
+      if (board[i] === "") {
+        board[i] = "X";
+        let score = minimax(board, depth + 1, true);
+        board[i] = "";
+        bestScore = Math.min(bestScore, score);
+      }
+    }
+    return bestScore;
+  }
+}
+
+function computerMove() {
+  if (!gameWon && movesCount < 9) {
+    const index = bestMove();
+    gameBoard[index] = "O";
+    cells[index].textContent = "O";
+    movesCount++;
+
+    const winner = checkWin(gameBoard);
+    if (winner) {
+      gameWon = true;
+      gameStatus.textContent = `${winner} has won!`;
+      highlightWinningCells(wonPatternIndices);
+    } else if (movesCount === 9) {
+      gameTie = true;
+      gameStatus.textContent = "Game ended in a tie";
+    } else {
+      switchPlayer();
+    }
+  }
+}
+
 function handleClicks(event) {
-  movesCount++;
   const cell = event.target;
   const index = Array.from(cells).indexOf(cell);
   if (gameBoard[index] === "" && !gameWon) {
     gameBoard[index] = currentPlayer;
     cell.textContent = currentPlayer;
-
-    if (computerPlaying && movesCount < 8) {
-      movesCount++;
-      let computerIndex;
-      do {
-        computerIndex = Math.floor(Math.random() * 9);
-      } while (gameBoard[computerIndex] !== "");
-
-      gameBoard[computerIndex] = currentPlayer === "X" ? "O" : "X";
-      cells[computerIndex].textContent = currentPlayer === "X" ? "O" : "X";
-      checkWin();
+    const winner = checkWin(gameBoard);
+    if (winner) {
+      if(winner === "tie"){
+        gameStatus.textContent = `Game ended in a tie`;
+      }else{
+        gameWon = true;
+        gameStatus.textContent = `${winner} has won!`;
+        highlightWinningCells(wonPatternIndices);
+      }
     } else {
-      checkWin();
-      if (!gameTie && !gameWon) {
-        switchPlayer();
+      movesCount++;
+      switchPlayer();
+      if (computerPlaying) {
+        computerMove();
       }
     }
   }
 }
 
-function switchPlayer() {
-  currentPlayer = currentPlayer === "X" ? "O" : "X";
-  gameStatus.textContent = `Current Player: ${currentPlayer}`;
-}
-
-function checkWin() {
+function checkWin(board) {
   for (let i = 0; i < winningCombinations.length; i++) {
     const [a, b, c] = winningCombinations[i];
     if (
-      gameBoard[a] &&
-      gameBoard[a] === gameBoard[b] &&
-      gameBoard[a] === gameBoard[c]
+      board[a] &&
+      board[a] === board[b] &&
+      board[a] === board[c]
     ) {
-      gameWon = true;
-      cells[a].classList.add("winner");
-      cells[b].classList.add("winner");
-      cells[c].classList.add("winner");
-      gameStatus.textContent = `${gameBoard[a]} has won!`;
-      break;
+      wonPatternIndices = [a,b,c];
+      return board[a];
     }
   }
-
-  if (!gameBoard.includes("") && !gameWon) {
-    gameTie = true;
-    gameStatus.textContent = `Game ended in a tie`;
-    return;
+  if (!board.includes("")) {
+    return "tie";
   }
+  return null;
+}
+
+function switchPlayer() {
+  currentPlayer = currentPlayer === "X" ? "O" : "X";
+  gameStatus.textContent = `Current Player: ${currentPlayer}`;
+  clearHighlightedCells();
 }
 
 function restartGame() {
@@ -94,10 +170,23 @@ function restartGame() {
 
   cells.forEach((cell) => {
     cell.textContent = "";
-    cell.classList.remove("winner");
+    clearHighlightedCells();
   });
 
   gameStatus.textContent = `Current Player: ${currentPlayer}`;
+}
+
+
+function highlightWinningCells(indices) {
+  for (const index of indices) {
+    cells[index].classList.add("winner");
+  }
+}
+
+function clearHighlightedCells() {
+  cells.forEach((cell) => {
+    cell.classList.remove("winner");
+  });
 }
 
 cells.forEach((cell) => {
