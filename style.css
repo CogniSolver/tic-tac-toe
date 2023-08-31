@@ -10,7 +10,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url('./brown-wood.jpg');
+    background-image: url('./bg-image/brown-wood.jpg');
     background-size: cover;
     font-family: 'Roboto', sans-serif;
     padding: 20px;
