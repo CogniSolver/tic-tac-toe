@@ -40,7 +40,7 @@ Feel free to customize, modify, and learn from the code to enhance your own web 
 This project was inspired by the classic game of Tic Tac Toe and was created by Bijay Pandey. If you find this project useful or have suggestions for improvements, feel free to contribute by submitting issues or pull requests.
 
 Enjoy the game and have fun challenging your friends or testing your skills against the computer!
-🚀[Live Demo](https://tictactoe-cognisolver.netlify.app/)
+🚀[Live Demo](https://cognisolver.github.io/tic-tac-toe/)
 
 
 ![Tic Tac Toe Screenshot](screenshot.png)
